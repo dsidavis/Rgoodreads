@@ -1,0 +1,311 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title></title><link rel="stylesheet" type="text/css" href="Class.css"></link><meta name="generator" content="DocBook XSL Stylesheets V1.76.1"></meta></head><body class="yui-skin-sam"><div class="article"><div class="titlepage"><div><div><h2 class="title"><a id="idp140410660697024"></a></h2></div><div><div class="author"><h3 class="author"><span class="firstname">Duncan</span> <span class="surname">Temple Lang</span></h3><div class="affiliation"><span class="orgname">University of California at Davis<br></br></span> <span class="orgdiv">Department of Statistics<br></br></span></div></div></div></div><hr></hr></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="idp140410692845216"></a></h2></div></div></div><p>
+This illustrates how to scrape some reviews from goodreads.com
+Be careful and read the ToS first.
+</p><p>
+Let's suppose you know the page for the book of interest.
+For example, Oliver Sacks' book On the Move is at
+<a class="ulink" href="http://www.goodreads.com/book/show/24972194-on-the-move" target="_top">http://www.goodreads.com/book/show/24972194-on-the-move</a>.
+Let's read this into R with
+</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140410666680272"><div><pre class="rcode" title="R code">
+doc = htmlParse("http://www.goodreads.com/book/show/24972194-on-the-move")
+</pre></div></div></div>
+<div xmlns="" class="clearFloat"></div>
+<p>
+</p><p>
+We can examine this document to find the reviews.
+I find it simplest to a) find the text of a review and then search for that with XPath,
+ b) view the entire document as source in the browser and search for a phrase that corresponds to one of the reviews,
+or c)  use the browser's Inspector tools to interactively identify the part of the page and the corresponding HTML 
+in the source.
+If we do c), we  find HTML of the form
+</p><pre class="programlisting">
+&lt;div id="review_1316237579" class="review" itemprop="reviews" itemscope="" itemtype="http://schema.org/Review"&gt;
+  &lt;link itemprop="url" href="http://www.goodreads.com/review/show/1316237579"/&gt;&lt;a class="left imgcol" href="/user/show/7670741-susan" title="Susan "&gt;&lt;img alt="Susan " src="http://d.gr-assets.com/users/1328728967p2/7670741.jpg"/&gt;&lt;/a&gt;
+
+  &lt;div class="left bodycol"&gt;
+    &lt;div class="reviewHeader uitext stacked"&gt;
+        &lt;a class="reviewDate createdAt right" href="/review/show/1316237579?book_show_action=true" itemprop="publishDate"&gt;Jun 28, 2015&lt;/a&gt;
+
+      &lt;a class="user" href="/user/show/7670741-susan" title="Susan "&gt;Susan &lt;/a&gt;
+
+        rated it
+        &lt;a class=" staticStars stars_4" title="really liked it"&gt;4 of 5 stars&lt;/a&gt;
+
+
+
+        
+
+    &lt;/div&gt;
+
+        &lt;div class="reviewText stacked"&gt;
+              &lt;span id="reviewTextContainer1316237579" class="readable" style=""&gt;
+            
+&lt;span id="freeTextContainer134690955832874513"&gt;I'm a longtime fan of Oliver Sacks and looked forward to listening to this memoir. It was an interesting, entertaining, well-written, and touchingly honest look back at a long life. It did suffer a bit from a confusing chronology, but it is a memoir so that is forgivable. The narrator kind of put a damper on my enthusiasm, however. His cadences and voice characterizations were a bit annoying, and he mispronounced some words that he should have researched first (eg, Magdelen College, afikoman). B&lt;/span&gt;
+  &lt;span id="freeText134690955832874513" style="display:none"&gt;I'm a longtime fan of Oliver Sacks and looked forward to listening to this memoir. It was an interesting, entertaining, well-written, and touchingly honest look back at a long life. It did suffer a bit from a confusing chronology, but it is a memoir so that is forgivable. The narrator kind of put a damper on my enthusiasm, however. His cadences and voice characterizations were a bit annoying, and he mispronounced some words that he should have researched first (eg, Magdelen College, afikoman). But definitely worth reading if you're a Sacks fan.&lt;/span&gt;
+  &lt;a data-text-id="134690955832874513" href="#" onclick="swapContent($(this));; return false;"&gt;...more&lt;/a&gt;
+
+          &lt;/span&gt;
+        &lt;/div&gt;
+
+
+      &lt;div class="reviewFooter uitext buttons"&gt;
+        
+&lt;tr class="no_border feedFooterReview" id="update_comment_stuff_Review1316237579"&gt;&lt;td colspan="2"&gt;
+    &lt;div class="updateActionLinks"&gt;
+        &lt;a class="right flag" href="/flagged/new?resource_id=1316237579&amp;amp;resource_type=Review&amp;amp;return_url=%2Fbook%2Fshow%2F24972194-on-the-move" id="flag_link1316237579" rel="nofollow" title="Flag this review as inappropriate."&gt;flag&lt;/a&gt;
+
+
+
+      &lt;span class="likeItContainer" id="like_container_review_1316237579"&gt;&lt;a href="/rating/voters/1316237579?resource_type=Review" id="like_count_review_1316237579" rel="nofollow"&gt;&lt;span class="likesCount"&gt;1 like&lt;/span&gt;&lt;/a&gt; · &lt;a href="http://www.goodreads.com/user/new?remember=true&amp;amp;return_url=%2Fbook%2Fshow%2F24972194-on-the-move" rel="nofollow"&gt;Like&lt;/a&gt;&lt;/span&gt; · &lt;a href="/review/show/1316237579?book_show_action=true&amp;amp;from_review_page=1"&gt;see review&lt;/a&gt;
+    &lt;/div&gt;
+    &lt;div id="comments_for_review_1316237579" style="display: none;"&gt;
+&lt;/div&gt;
+
+  &lt;/td&gt;
+&lt;/tr&gt;&lt;/div&gt;
+
+  &lt;/div&gt;
+
+  &lt;div class="clear"/&gt;
+&lt;/div&gt; 
+</pre><p>
+The key thing to note here is the <code xmlns="" class="xmlAttribute">class</code> attribute on the <code xmlns="" class="xmlTag">&lt;div&gt;</code> element.
+The value of <code xmlns="" class="xmlAttribute">class</code> is review, and that identifies what we want.
+</p><p>
+We can find all the reviews on the page with
+</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140410699087408"><div><pre class="rcode" title="R code">
+rvs = getNodeSet(doc, "//div[@class = 'review']")
+</pre></div></div></div>
+<div xmlns="" class="clearFloat"></div>
+<p>
+How many are there ? 
+</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140410699087792"><div><pre class="rcode" title="R code">
+length(rvs)
+[1] 21
+</pre></div></div></div>
+<div xmlns="" class="clearFloat"></div>
+<p>
+</p><p>
+The next step is to extract the information about the review, i.e., 
+the user name of the reviewer, the date, the number of stars, and the text.
+We could also get the number of likes for the review.
+We can see where these are in the HTML, but we have to write code to extract
+them so we can automate this.
+</p><p>
+
+</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140410699089264"><div><pre class="rcode" title="R code">
+rv = rvs[[21]]
+tmp = getNodeSet(rv, ".//a[@class='user']")
+name = xmlGetAttr(tmp[[1]], "title")
+personURL = xmlGetAttr(tmp, "href")
+</pre></div></div></div>
+<div xmlns="" class="clearFloat"></div>
+<p>
+We have to remove the trailing space of the name, which we can do with XML:::trim()
+
+</p><p>
+We can get the date with
+</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140410699090176"><div><pre class="rcode" title="R code">
+date = xmlValue(getNodeSet(rv, ".//a[@itemprop = 'publishDate']")[[1]])
+</pre></div></div></div>
+<div xmlns="" class="clearFloat"></div>
+<p>
+</p><p>
+We get the stars with
+</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140410699090944"><div><pre class="rcode" title="R code">
+n = getNodeSet(rv, ".//a[contains(@class, 'staticStars')]")[[1]]
+as.integer(substring(xmlValue(n), 1, 1))
+</pre></div></div></div>
+<div xmlns="" class="clearFloat"></div>
+<p>
+</p><p>
+The text of the review seems to be in the 
+<code xmlns="" class="xmlTag">&lt;div&gt;</code> element with a class attribute
+</p><pre class="programlisting">
+&lt;div class="reviewText stacked"&gt;
+</pre><p>
+So we can fetch that node with 
+</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140410699092352"><div><pre class="rcode" title="R code">
+n = getNodeSet(rv, './/div[@class="reviewText stacked"]')[[1]]
+xmlValue(n)
+</pre></div></div></div>
+<div xmlns="" class="clearFloat"></div>
+<p>
+Again, we can remove the white space at the beginning and end of the text.
+</p><p>
+Let's collect these operations into a function.
+It is called with the review node and returns the reviewer's name, URL, date, stars, and text.
+</p><pre xmlns="" class="rfunction">
+getReviewInfo =
+function(rv)
+{
+   tmp = getNodeSet(rv, ".//a[@class='user']")[[1]]
+   name = xmlGetAttr(tmp, "title")
+   personURL = xmlGetAttr(tmp, "href")
+
+   date = xmlValue(getNodeSet(rv, ".//a[@itemprop = 'publishDate']")[[1]])
+
+   n = getNodeSet(rv, ".//a[contains(@class, 'staticStars')]")
+   if(length(n))
+      stars = as.integer(substring(xmlValue(n[[1]]), 1, 1))
+   else
+      stars = NA
+
+   n = getNodeSet(rv, './/div[@class="reviewText stacked"]')[[1]]
+   text = xmlValue(n)
+
+   data.frame(username = name, userurl = personURL, date = date, stars = stars, text = text, stringsAsFactors = FALSE)
+}
+</pre>
+<p><br xmlns="">
+</p><p>
+We can call this function with our <b xmlns="" class="S" title="">rv</b> review:
+</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140410699095104"><div><pre class="rcode" title="R code">
+getReviewInfo(rv)
+<pre class="routput">
+  username                  userurl         date stars
+1   Susan  /user/show/7670741-susan Jun 28, 2015     4
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               text
+1 \n              \n            \nI'm a longtime fan of Oliver Sacks and looked forward to listening to this memoir. It was an interesting, entertaining, well-written, and touchingly honest look back at a long life. It did suffer a bit from a confusing chronology, but it is a memoir so that is forgivable. The narrator kind of put a damper on my enthusiasm, however. His cadences and voice characterizations were a bit annoying, and he mispronounced some words that he should have researched first (eg, Magdelen College, afikoman). B\n  I'm a longtime fan of Oliver Sacks and looked forward to listening to this memoir. It was an interesting, entertaining, well-written, and touchingly honest look back at a long life. It did suffer a bit from a confusing chronology, but it is a memoir so that is forgivable. The narrator kind of put a damper on my enthusiasm, however. His cadences and voice characterizations were a bit annoying, and he mispronounced some words that he should have researched first (eg, Magdelen College, afikoman). But definitely worth reading if you're a Sacks fan.\n  ...more\n\n          \n        
+</pre>
+</pre></div></div></div>
+<div xmlns="" class="clearFloat"></div>
+<p>
+</p><p>
+We can process all of the 21 reviews on this page with
+</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140410699096336"><div><pre class="rcode" title="R code">
+reviews = lapply(rvs, getReviewInfo)
+</pre></div></div></div>
+<div xmlns="" class="clearFloat"></div>
+<p>
+We can stack them together into a single data frame with
+</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140410699096832"><div><pre class="rcode" title="R code">
+reviews = do.call(rbind, reviews)
+</pre></div></div></div>
+<div xmlns="" class="clearFloat"></div>
+<p>
+Check the result!
+</p><p>
+We just have the 21 most recent reviews.
+There are others on subsequent pages. We would navigate to the next page using the next link in our browser.
+So we can do this in <b xmlns:xd="http://www.xsldoc.org" xmlns="" class="proglang">R</b> also:
+</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140410699098208"><div><pre class="rcode" title="R code">
+a = getNodeSet(doc, "//a[ starts-with(., 'next')]")
+</pre></div></div></div>
+<div xmlns="" class="clearFloat"></div>
+<p>
+This returns one node and we can get its link with
+</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140410699098720"><div><pre class="rcode" title="R code">
+xmlGetAttr(a[[1]], "href")
+</pre></div></div></div>
+<div xmlns="" class="clearFloat"></div>
+<p>
+Bummer - this returns just #.
+There is an <code xmlns="" class="xmlAttribute">onclick</code> attribute, but this is JavaScript code. We need 
+to be in the browser to evaluate this.
+However, we can fake it out.
+Note that the node looks like
+</p><pre class="programlisting">
+&lt;a class="next_page" href="#" onclick="new Ajax.Request('/book/reviews/24972194-on-the-move?page=2', {asynchronous:true, evalScripts:true, method:'get', parameters:'authenticity_token=' + encodeURIComponent('e8BGvIzRyUSeH5AtgKGTpgAyEp2duUbvEBb9SSR/cEsvyzRkLtC/de3t433fTPWPnl01+HVIkzWCuMKGmCz1/A==')}); return false;"&gt;next Â»&lt;/a&gt; 
+</pre><p>
+We can obtain the next page by appending ?page=2 to the original URL.
+We could either extract this URL from the <code xmlns="" class="xmlAttribute">onclick</code> attribute, or we can just keep a count of which page we are on and increment that.
+</p><p>
+Let's get the second page:
+</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140410699101728"><div><pre class="rcode" title="R code">
+doc2 = htmlParse("http://www.goodreads.com/book/show/24972194-on-the-move?page=2")
+</pre></div></div></div>
+<div xmlns="" class="clearFloat"></div>
+<p>
+We can do the same thing as we did for the first page:
+</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140410699102272"><div><pre class="rcode" title="R code">
+rvs = getNodeSet(doc2, "//div[@class = 'review']")
+tmp = lapply(rvs,  getReviewInfo)
+do.call(rbind, tmp)
+</pre></div></div></div>
+<div xmlns="" class="clearFloat"></div>
+<p>
+We can then combine this data frame with the earlier one:
+</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140410699102832"><div><pre class="rcode" title="R code">
+reviews = rbind(reviews, do.call(rbind, tmp))
+</pre></div></div></div>
+<div xmlns="" class="clearFloat"></div>
+<p>
+Now we have 42 reviews and we can go to the next page. 
+</p><p>
+</p><pre xmlns="" class="rfunction">
+getReviews = 
+function(url, max = 2000, start = 1L, verbose = TRUE)
+{
+  pageNum = as.integer(start)
+  ans = structure(list(username = character(0), userurl = character(0), 
+                       date = character(0), stars = integer(0), text = character(0)), 
+                  .Names = c("username", "userurl", "date", "stars", "text"), row.names = integer(0), 
+                  class = "data.frame")
+
+  u = url
+  while(nrow(ans) &lt; max) { 
+       if(verbose)
+          cat("getting page", pageNum, "\n")
+       url = sprintf("%s?page=%d", u, pageNum)
+       doc =  htmlParse(url)  
+       rvs = getNodeSet(doc, "//div[@class = 'review']")
+       tmp = lapply(rvs,  getReviewInfo)
+       ans = rbind(ans, do.call(rbind, tmp))
+ 
+       a = getNodeSet(doc, "//a[starts-with(., 'next')]")
+       if(length(a) == 0)
+         break
+       pageNum = pageNum + 1L
+  }
+
+  ans
+}
+</pre>
+<p><br xmlns="">
+
+</p><p>
+Okay, but how do we find the URL  of the first page for a book?
+We'll, the front page of goodreads.com has a search box in the middle
+and we can enter a title, author or ISBN number there.
+We can do the same thing with <b xmlns:xd="http://www.xsldoc.org" xmlns="" class="proglang">R</b>.
+With a little digging or some <b xmlns:xd="http://www.xsldoc.org" xmlns="" class="proglang">R</b> functions (in <i xmlns:r="http://www.r-project.org" xmlns:c="http://www.C.org" xmlns=""><a href="http://cran.r-project.org/web/packages/RHTMLForms/index.html">RHTMLForms</a></i>),
+we can get the contents of the first page (not the URL) with
+</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140410699106016"><div><pre class="rcode" title="R code">
+tt = getForm("http://www.goodreads.com/search", query = "On the move: A Life")
+</pre></div></div></div>
+<div xmlns="" class="clearFloat"></div>
+<p>
+The value of the <i xmlns="" class="rarg">query</i> argument is the name of the book or author name.
+The result in <b xmlns="" class="S" title="">tt</b> is the content of the search results.
+We can extract the URLs for each of the results with
+</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140410699107440"><div><pre class="rcode" title="R code">
+u = getNodeSet(doc, "//a[@class='bookTitle' and contains(@href, 'search_version')]/@href")
+u = getRelativeURL(u, "http://www.goodreads.com/search")
+</pre></div></div></div>
+<div xmlns="" class="clearFloat"></div>
+<p>
+Then we can process one or all of these to get the reviews.
+</p><p>
+We'll put this into a function:
+</p><pre xmlns="" class="rfunction">
+getSearchResults =
+function(title)
+{
+    tt = getForm("http://www.goodreads.com/search", query = title)
+    doc = htmlParse(tt, asText = TRUE)
+    u = getNodeSet(doc, "//a[@class='bookTitle' and contains(@href, 'search_version')]/@href")
+    u = getRelativeURL(u, "http://www.goodreads.com/search")
+}
+</pre>
+<p><br xmlns="">
+Then we can use this with
+</p><div xmlns="" class="codeToggle"><div class="unhidden" id="idp140410699109168"><div><pre class="rcode" title="R code">
+u = getSearchResults("On the Move: A Life")
+rvs = getReviews(u[1])
+</pre></div></div></div>
+<div xmlns="" class="clearFloat"></div>
+<p>
+</p></div></div></body></html>

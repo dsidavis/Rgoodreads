@@ -1,0 +1,9 @@
+Package: Rgoodreads
+Version: 0.1-0
+Title: Access GoodReads data via API and scraping
+Description:  Functions that provide mechanisms to extract data from  the GoodReads API
+  and regular Web pages.
+Author: Duncan Temple Lang
+Maintainer: Duncan Temple Lang <duncan@r-project.org>
+License: BSD
+Imports: RCurl, XML, RJSONIO

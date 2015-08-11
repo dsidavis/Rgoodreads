@@ -1,0 +1,361 @@
+<article xmlns:r="http://www.r-project.org"
+         xmlns:xi="http://www.w3.org/2003/XInclude"
+	 xmlns:c="http://www.C.org"
+	 xmlns:omg="http://www.omegahat.org">
+
+<articleinfo>
+
+<title></title>
+
+<author><firstname>Duncan</firstname><surname>Temple Lang</surname>
+  <affiliation><orgname>University of California at Davis</orgname>
+               <orgdiv>Department of Statistics</orgdiv>
+  </affiliation>
+</author>
+</articleinfo>
+
+<section>
+<title></title>
+
+<para>
+This illustrates how to scrape some reviews from goodreads.com
+Be careful and read the ToS first.
+</para>
+
+
+
+<para>
+Let's suppose you know the page for the book of interest.
+For example, Oliver Sacks' book On the Move is at
+<ulink url="http://www.goodreads.com/book/show/24972194-on-the-move"/>.
+Let's read this into R with
+<r:code>
+doc = htmlParse("http://www.goodreads.com/book/show/24972194-on-the-move")
+</r:code>
+</para>
+<para>
+We can examine this document to find the reviews.
+I find it simplest to a) find the text of a review and then search for that with XPath,
+ b) view the entire document as source in the browser and search for a phrase that corresponds to one of the reviews,
+or c)  use the browser's Inspector tools to interactively identify the part of the page and the corresponding HTML 
+in the source.
+If we do c), we  find HTML of the form
+<programlisting><![CDATA[
+<div id="review_1316237579" class="review" itemprop="reviews" itemscope="" itemtype="http://schema.org/Review">
+  <link itemprop="url" href="http://www.goodreads.com/review/show/1316237579"/><a class="left imgcol" href="/user/show/7670741-susan" title="Susan "><img alt="Susan " src="http://d.gr-assets.com/users/1328728967p2/7670741.jpg"/></a>
+
+  <div class="left bodycol">
+    <div class="reviewHeader uitext stacked">
+        <a class="reviewDate createdAt right" href="/review/show/1316237579?book_show_action=true" itemprop="publishDate">Jun 28, 2015</a>
+
+      <a class="user" href="/user/show/7670741-susan" title="Susan ">Susan </a>
+
+        rated it
+        <a class=" staticStars stars_4" title="really liked it">4 of 5 stars</a>
+
+
+
+        
+
+    </div>
+
+        <div class="reviewText stacked">
+              <span id="reviewTextContainer1316237579" class="readable" style="">
+            
+<span id="freeTextContainer134690955832874513">I'm a longtime fan of Oliver Sacks and looked forward to listening to this memoir. It was an interesting, entertaining, well-written, and touchingly honest look back at a long life. It did suffer a bit from a confusing chronology, but it is a memoir so that is forgivable. The narrator kind of put a damper on my enthusiasm, however. His cadences and voice characterizations were a bit annoying, and he mispronounced some words that he should have researched first (eg, Magdelen College, afikoman). B</span>
+  <span id="freeText134690955832874513" style="display:none">I'm a longtime fan of Oliver Sacks and looked forward to listening to this memoir. It was an interesting, entertaining, well-written, and touchingly honest look back at a long life. It did suffer a bit from a confusing chronology, but it is a memoir so that is forgivable. The narrator kind of put a damper on my enthusiasm, however. His cadences and voice characterizations were a bit annoying, and he mispronounced some words that he should have researched first (eg, Magdelen College, afikoman). But definitely worth reading if you're a Sacks fan.</span>
+  <a data-text-id="134690955832874513" href="#" onclick="swapContent($(this));; return false;">...more</a>
+
+          </span>
+        </div>
+
+
+      <div class="reviewFooter uitext buttons">
+        
+<tr class="no_border feedFooterReview" id="update_comment_stuff_Review1316237579"><td colspan="2">
+    <div class="updateActionLinks">
+        <a class="right flag" href="/flagged/new?resource_id=1316237579&amp;resource_type=Review&amp;return_url=%2Fbook%2Fshow%2F24972194-on-the-move" id="flag_link1316237579" rel="nofollow" title="Flag this review as inappropriate.">flag</a>
+
+
+
+      <span class="likeItContainer" id="like_container_review_1316237579"><a href="/rating/voters/1316237579?resource_type=Review" id="like_count_review_1316237579" rel="nofollow"><span class="likesCount">1 like</span></a> · <a href="http://www.goodreads.com/user/new?remember=true&amp;return_url=%2Fbook%2Fshow%2F24972194-on-the-move" rel="nofollow">Like</a></span> · <a href="/review/show/1316237579?book_show_action=true&amp;from_review_page=1">see review</a>
+    </div>
+    <div id="comments_for_review_1316237579" style="display: none;">
+</div>
+
+  </td>
+</tr></div>
+
+  </div>
+
+  <div class="clear"/>
+</div> 
+]]></programlisting>
+The key thing to note here is the <xml:attr>class</xml:attr> attribute on the <xml:tag>div</xml:tag> element.
+The value of <xml:attr>class</xml:attr> is review, and that identifies what we want.
+</para>
+<para>
+We can find all the reviews on the page with
+<r:code>
+rvs = getNodeSet(doc, "//div[@class = 'review']")
+</r:code>
+How many are there ? 
+<r:code>
+length(rvs)
+[1] 21
+</r:code>
+</para>
+
+
+<para>
+The next step is to extract the information about the review, i.e., 
+the user name of the reviewer, the date, the number of stars, and the text.
+We could also get the number of likes for the review.
+We can see where these are in the HTML, but we have to write code to extract
+them so we can automate this.
+</para>
+<para>
+
+<r:code>
+rv = rvs[[21]]
+tmp = getNodeSet(rv, ".//a[@class='user']")
+name = xmlGetAttr(tmp[[1]], "title")
+personURL = xmlGetAttr(tmp, "href")
+</r:code>
+We have to remove the trailing space of the name, which we can do with XML:::trim()
+
+</para>
+
+
+<para>
+We can get the date with
+<r:code>
+date = xmlValue(getNodeSet(rv, ".//a[@itemprop = 'publishDate']")[[1]])
+</r:code>
+</para>
+
+
+<para>
+We get the stars with
+<r:code>
+n = getNodeSet(rv, ".//a[contains(@class, 'staticStars')]")[[1]]
+as.integer(substring(xmlValue(n), 1, 1))
+</r:code>
+</para>
+
+
+<para>
+The text of the review seems to be in the 
+<xml:tag>div</xml:tag> element with a class attribute
+<programlisting><![CDATA[
+<div class="reviewText stacked">
+]]></programlisting>
+So we can fetch that node with 
+<r:code>
+n = getNodeSet(rv, './/div[@class="reviewText stacked"]')[[1]]
+xmlValue(n)
+</r:code>
+Again, we can remove the white space at the beginning and end of the text.
+</para>
+
+
+
+<para>
+Let's collect these operations into a function.
+It is called with the review node and returns the reviewer's name, URL, date, stars, and text.
+<r:function><![CDATA[
+getReviewInfo =
+function(rv)
+{
+   tmp = getNodeSet(rv, ".//a[@class='user']")[[1]]
+   name = xmlGetAttr(tmp, "title")
+   personURL = xmlGetAttr(tmp, "href")
+
+   date = xmlValue(getNodeSet(rv, ".//a[@itemprop = 'publishDate']")[[1]])
+
+   n = getNodeSet(rv, ".//a[contains(@class, 'staticStars')]")
+   if(length(n))
+      stars = as.integer(substring(xmlValue(n[[1]]), 1, 1))
+   else
+      stars = NA
+
+   n = getNodeSet(rv, './/div[@class="reviewText stacked"]')[[1]]
+   text = xmlValue(n)
+
+   data.frame(username = name, userurl = personURL, date = date, stars = stars, text = text, stringsAsFactors = FALSE)
+}
+]]></r:function>
+</para>
+
+
+<para>
+We can call this function with our <r:var>rv</r:var> review:
+<r:code>
+getReviewInfo(rv)
+<r:output><![CDATA[
+  username                  userurl         date stars
+1   Susan  /user/show/7670741-susan Jun 28, 2015     4
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               text
+1 \n              \n            \nI'm a longtime fan of Oliver Sacks and looked forward to listening to this memoir. It was an interesting, entertaining, well-written, and touchingly honest look back at a long life. It did suffer a bit from a confusing chronology, but it is a memoir so that is forgivable. The narrator kind of put a damper on my enthusiasm, however. His cadences and voice characterizations were a bit annoying, and he mispronounced some words that he should have researched first (eg, Magdelen College, afikoman). B\n  I'm a longtime fan of Oliver Sacks and looked forward to listening to this memoir. It was an interesting, entertaining, well-written, and touchingly honest look back at a long life. It did suffer a bit from a confusing chronology, but it is a memoir so that is forgivable. The narrator kind of put a damper on my enthusiasm, however. His cadences and voice characterizations were a bit annoying, and he mispronounced some words that he should have researched first (eg, Magdelen College, afikoman). But definitely worth reading if you're a Sacks fan.\n  ...more\n\n          \n        
+]]></r:output>
+</r:code>
+</para>
+
+
+<para>
+We can process all of the 21 reviews on this page with
+<r:code>
+reviews = lapply(rvs, getReviewInfo)
+</r:code>
+We can stack them together into a single data frame with
+<r:code>
+reviews = do.call(rbind, reviews)
+</r:code>
+Check the result!
+</para>
+
+
+<para>
+We just have the 21 most recent reviews.
+There are others on subsequent pages. We would navigate to the next page using the next link in our browser.
+So we can do this in <r/> also:
+<r:code>
+a = getNodeSet(doc, "//a[ starts-with(., 'next')]")
+</r:code>
+This returns one node and we can get its link with
+<r:code>
+xmlGetAttr(a[[1]], "href")
+</r:code>
+Bummer - this returns just #.
+There is an <xml:attr>onclick</xml:attr> attribute, but this is JavaScript code. We need 
+to be in the browser to evaluate this.
+However, we can fake it out.
+Note that the node looks like
+<programlisting><![CDATA[
+<a class="next_page" href="#" onclick="new Ajax.Request('/book/reviews/24972194-on-the-move?page=2', {asynchronous:true, evalScripts:true, method:'get', parameters:'authenticity_token=' + encodeURIComponent('e8BGvIzRyUSeH5AtgKGTpgAyEp2duUbvEBb9SSR/cEsvyzRkLtC/de3t433fTPWPnl01+HVIkzWCuMKGmCz1/A==')}); return false;">next Â»</a> 
+]]></programlisting>
+We can obtain the next page by appending ?page=2 to the original URL.
+We could either extract this URL from the <xml:attr>onclick</xml:attr> attribute, or we can just keep a count of which page we are on and increment that.
+</para>
+
+
+<para>
+Let's get the second page:
+<r:code>
+doc2 = htmlParse("http://www.goodreads.com/book/show/24972194-on-the-move?page=2")
+</r:code>
+We can do the same thing as we did for the first page:
+<r:code>
+rvs = getNodeSet(doc2, "//div[@class = 'review']")
+tmp = lapply(rvs,  getReviewInfo)
+do.call(rbind, tmp)
+</r:code>
+We can then combine this data frame with the earlier one:
+<r:code>
+reviews = rbind(reviews, do.call(rbind, tmp))
+</r:code>
+Now we have 42 reviews and we can go to the next page. 
+</para>
+
+
+<para>
+<r:function><![CDATA[
+getReviews = 
+function(url, max = 2000, start = 1L, verbose = TRUE)
+{
+  pageNum = as.integer(start)
+  ans = structure(list(username = character(0), userurl = character(0), 
+                       date = character(0), stars = integer(0), text = character(0)), 
+                  .Names = c("username", "userurl", "date", "stars", "text"), row.names = integer(0), 
+                  class = "data.frame")
+
+  u = url
+  while(nrow(ans) < max) { 
+       if(verbose)
+          cat("getting page", pageNum, "\n")
+       url = sprintf("%s?page=%d", u, pageNum)
+       doc =  htmlParse(url)  
+       rvs = getNodeSet(doc, "//div[@class = 'review']")
+       tmp = lapply(rvs,  getReviewInfo)
+       ans = rbind(ans, do.call(rbind, tmp))
+ 
+       a = getNodeSet(doc, "//a[starts-with(., 'next')]")
+       if(length(a) == 0)
+         break
+       pageNum = pageNum + 1L
+  }
+
+  ans
+}
+]]></r:function>
+
+</para>
+
+
+
+<para>
+Okay, but how do we find the URL  of the first page for a book?
+We'll, the front page of goodreads.com has a search box in the middle
+and we can enter a title, author or ISBN number there.
+We can do the same thing with <r/>.
+With a little digging or some <r/> functions (in <r:pkg>RHTMLForms</r:pkg>),
+we can get the contents of the first page (not the URL) with
+<r:code>
+tt = getForm("http://www.goodreads.com/search", query = "On the move: A Life")
+</r:code>
+The value of the <r:arg>query</r:arg> argument is the name of the book or author name.
+The result in <r:var>tt</r:var> is the content of the search results.
+We can extract the URLs for each of the results with
+<r:code>
+u = getNodeSet(doc, "//a[@class='bookTitle' and contains(@href, 'search_version')]/@href")
+u = getRelativeURL(u, "http://www.goodreads.com/search")
+</r:code>
+Then we can process one or all of these to get the reviews.
+</para>
+
+<para>
+We'll put this into a function:
+<r:function><![CDATA[
+getSearchResults =
+function(title)
+{
+    tt = getForm("http://www.goodreads.com/search", query = title)
+    doc = htmlParse(tt, asText = TRUE)
+    u = getNodeSet(doc, "//a[@class='bookTitle' and contains(@href, 'search_version')]/@href")
+    u = getRelativeURL(u, "http://www.goodreads.com/search")
+}
+]]></r:function>
+Then we can use this with
+<r:code>
+u = getSearchResults("On the Move: A Life")
+rvs = getReviews(u[1])
+</r:code>
+</para>
+
+
+
+
+
+
+
+
+
+
+<ignore>
+<para>
+
+The last review on that page starts with 
+"I'm a longtime fan of".
+So let's find that, 
+<r:code>
+tmp = getNodeSet(doc, "//text()[contains(., 'a longtime fan')]")
+</r:code>
+We end up with two almost identical nodes.
+Let's look at the parent of the first one
+</para>
+</ignore>
+
+</section>
+
+
+</article>

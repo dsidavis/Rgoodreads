@@ -1,0 +1,11 @@
+You can use the scraping facilities directly.
+To use the API functionality, you need to register with GoodReads to obtain a key at
+   https://www.goodreads.com/api/keys
+
+Once you have the key (ignoring the secret), it is most convenient to specify it
+as an R option
+
+  options(GoodReadsKey = "12319031203")
+
+(replace the "1231..."  with your actualy key)
+

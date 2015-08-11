@@ -1,0 +1,18 @@
+import(RCurl)
+import(XML)
+import(RJSONIO)
+
+export(
+    findGroup,
+    bookReviewCounts,
+    findBooks,
+    usersShelves,
+    usersGroups,
+    getReview,
+    userInfo,
+    groupMembers,
+    userReadStatuses,
+    isbnReviews,
+    groupShow,
+    userBookReview
+   )

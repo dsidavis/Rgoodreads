@@ -1,0 +1,42 @@
+group.search   —   Find a group.  findGroup()
+book.review_counts   —   Get review statistics given a list of ISBNs.   bookReviewCounts()
+search.books  —   Find books by title, author, or ISBN.  findBooks()
+shelves.list   —   Get a user's shelves.   usersShelves()
+group.list   —   List groups for a given user.    usersGroups()
+review.show   —   Get a review.    getReview()
+user.show   —   Get info about a member by id or username.  userInfo()
+group.members   —   Return members of a particular group.   groupMembers()
+group.show   —   Get info about a group by id.  groupShow()
+book.show_by_isbn   —   Get the reviews for a book given an ISBN.  isbnReviews()
+review.show_by_user_and_book   —   Get a user's review for a given book.  userBookReview()
+read_statuses.show   —   Get a user's read status.   usersReadStatuses()  
+ 
+
+
+
+Process XML
+reviews.list   —   Get the books on a members shelf.   
+
+
+----------------------
+
+9781743295533
+
+
+user
+https://www.goodreads.com/user/show/23187239-marifer-reyes
+
+
+
+Need OAuth
+
+fanship.create  —  Become fan of an author. DEPRECATED
+faniship.destroy —   Stop being fan of an author. DEPRECATED.
+friends.create   —   Add a friend.
+group.join   —   Join a group.
+user.friends   —   Get a user's friends.
+owned_books.list   —   List books owned by a user.
+user_shelves.create   —   Add book shelf.
+owned_books.create   —   Add to books owned.
+shelves.add_to_shelf   —   Add a book to a shelf.
+user.compare   —   Compare books with another member.
