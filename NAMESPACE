@@ -16,3 +16,6 @@ export(
     groupShow,
     userBookReview
    )
+
+export(getSearchResults, getReviews)
+
