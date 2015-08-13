@@ -19,3 +19,5 @@ export(
 
 export(getSearchResults, getReviews)
 
+export(rbindDFs)
+

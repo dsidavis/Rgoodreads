@@ -35,9 +35,34 @@ function(node)
 
 
 addElement =
-function(x, field) {
+function(x, field, order = character()) {
     i = !(field %in% names(x))
     if(any(i))
         x[field[i]] = NA
+
+    if(length(order))
+       x = x[order]
     x
 }    
+
+
+
+rbindDFs =
+    #
+    #  This takes a list of data frames and combines them into a single data frame.
+    #  This adds missing field/columns as NAs for any data frame that doesn't have all of the
+    #  variables.
+    #
+function(x)
+{
+   cts = table(unlist(sapply(x, names)))
+   if(!all(cts == length(x))) {
+
+        i = which(cts < length(x))
+        var = names(cts)[i]
+        x = lapply(x, addElement, var, names(cts))
+   }
+
+   do.call(rbind, x)
+}
+    
