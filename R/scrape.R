@@ -1,7 +1,7 @@
 getSearchResults =
-function(title)
+function(title, curl = getCurlHandle())
 {
-    tt = getForm("http://www.goodreads.com/search", query = title)
+    tt = getForm("http://www.goodreads.com/search", query = title, curl = curl)
     doc = htmlParse(tt, asText = TRUE)
     u = getNodeSet(doc, "//a[@class='bookTitle' and contains(@href, 'search_version')]/@href")
     u = getRelativeURL(u, "http://www.goodreads.com/search")
@@ -9,7 +9,7 @@ function(title)
 
 
 getReviews = 
-function(url, max = 2000, start = 1L, verbose = TRUE)
+function(url, max = 2000, start = 1L, verbose = TRUE, curl = getCurlHandle())
 {
   pageNum = as.integer(start)
   ans = structure(list(username = character(0), userurl = character(0), 
@@ -18,18 +18,20 @@ function(url, max = 2000, start = 1L, verbose = TRUE)
                   class = "data.frame")
 
   u = url
-  while(nrow(ans) < max) { 
+  while(nrow(ans) < max) {
+#      https://www.goodreads.com/book/reviews/1845?authenticity_token=mkl9F9wWWdzcgRNr4OIh5a5sMiiNk593GbWUyUEKOCDC+QV0b1hUr4uOz9zZGOlkWRmu54HFS7QqJfohSod7Zg==&amp;page=3&authenticity_token=1buhsJlARVvARy/RqU3QytpZVi4WfOR5L66fhrOSWmqNC9nTKg5IKJdI82aQtxhLLSzK4RoqMLocPvFuuB8ZLA==
+       url = sprintf("%s&page=%d", u, pageNum)      
        if(verbose)
-          cat("getting page", pageNum, "\n")
-       url = sprintf("%s?page=%d", u, pageNum)
-       doc =  htmlParse(url)  
-       rvs = getNodeSet(doc, "//div[@class = 'review']")
-       tmp = lapply(rvs,  getReviewInfo)
+          cat("getting page", pageNum, url, "\n")
+       txt = getURLContent(url, curl = curl)
+       doc =  htmlParse(txt, asText = TRUE)
+       tmp = xpathApply(doc, "//div[@class = 'review']", getReviewInfo)
        ans = rbind(ans, do.call(rbind, tmp))
  
        a = getNodeSet(doc, "//a[starts-with(., 'next')]")
        if(length(a) == 0)
          break
+       
        pageNum = pageNum + 1L
   }
 
