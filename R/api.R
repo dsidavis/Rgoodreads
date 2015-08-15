@@ -5,6 +5,10 @@ userInfo =
 function(id, url = "https://www.goodreads.com/user/show/", curl = getCurlHandle(),
            key = getOption("GoodReadsKey", stop("no API key")))
 {
+   if(length(id) > 1) 
+       return(rbindDFs( lapply(id, userInfo)))
+   
+
    u = sprintf("%s%s.xml", url, as.character(id))
    txt = getForm(u, key = key, curl = curl)
    doc = xmlParse(txt)
