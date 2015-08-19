@@ -277,3 +277,15 @@ function(node)
   xmlSApply(node, xmlValue)
 }
 
+
+userRSSReviews =
+function(userId, shelf = "#ALL#", url = "https://www.goodreads.com/review/list_rss", curl = getCurlHandle(),
+          key = getOption("GoodReadsKey", stop("no API key")), ...)
+{
+  u = sprintf("%s/%s", url, userId)
+  txt = getForm(u, key = key, shelf = shelf, curl = curl, ...)
+  doc = xmlParse(txt)
+  do.call(rbind, xpathApply(doc, "//channel/item", getSimpleFields))
+}
+
+

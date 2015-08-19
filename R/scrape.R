@@ -59,3 +59,23 @@ function(rv)
    data.frame(username = name, userurl = personURL, date = date, stars = stars, text = text, stringsAsFactors = FALSE)
 }
 
+
+
+login =
+function(email, password = getOption("GoodReadsPassword", stop("need the Web password (not API key)")),
+         curl = getCurlHandle(cookiejar = "", followlocation = TRUE, verbose = TRUE, ...),
+         url = "https://www.goodreads.com/user/sign_in", ...)
+{
+   txt = postForm(url, 'user[email]' = email, 'user[password]' = password, style = "post", curl = curl)
+   curl
+}
+
+getUserRatings =
+    # https://www.goodreads.com/review/list/6773727?sort=rating&view=reviews
+function(url, curl)
+{
+    txt = getURLContent(url, curl = curl)
+    doc = htmlParse(txt, asText = TRUE)
+    tbl = readHTMLTable(doc)
+    
+}
