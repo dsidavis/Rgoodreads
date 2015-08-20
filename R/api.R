@@ -279,6 +279,7 @@ function(node)
 
 
 userRSSReviews =
+    # o = userRSSReviews( "6773727")
 function(userId, shelf = "#ALL#", url = "https://www.goodreads.com/review/list_rss", curl = getCurlHandle(),
           key = getOption("GoodReadsKey", stop("no API key")), ...)
 {

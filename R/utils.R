@@ -66,3 +66,7 @@ function(x)
    do.call(rbind, x)
 }
     
+
+trim = 
+function (x) 
+gsub("(^[[:space:]]+|[[:space:]]+$)", "", x)
