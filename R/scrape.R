@@ -72,24 +72,28 @@ function(email, password = getOption("GoodReadsPassword", stop("need the Web pas
 
 getUserRatings =
     #
+    #  Give the goodreads user id as the first input.
+    #
     #  getUserRatings(6773727)
     #
     #  You will have to first login to goodreads.com using Firefox.
     #  This will allow us to get the relevant cookies from Firefox.
     #
     # https://www.goodreads.com/review/list/6773727?sort=rating&view=reviews
-function(id, max = 60, url = "https://www.goodreads.com/review/list/", cookie = getLoginCookie(), curl = getLoginHandle(cookie))
+function(id, max = 200, page = 1, verbose = TRUE,
+         url = "https://www.goodreads.com/review/list/",
+         cookie = getLoginCookie(), curl = getLoginHandle(cookie))
 {
     u = sprintf("%s%s", url, id)
-#    txt = getURLContent(u, curl = curl)
-    page = 1
 
     ans = NULL
     while(TRUE) {
-        cat("getting page", page, "\n")
-        txt = getForm(u, view = "reviews", sort = "rating", page = 1, curl = curl)    
+        if(verbose)
+            cat("getting page", page, "\n")
+
+        txt = getForm(u, view = "reviews", sort = "rating", page = page, curl = curl)
         doc = htmlParse(txt, asText = TRUE)
-        tbl = readHTMLTable(doc, which = 2)
+        tbl = readHTMLTable(doc, which = 2, stringsAsFactors = FALSE)
 
         if(is.data.frame(ans))
             ans = rbind(ans, tbl)
@@ -99,12 +103,23 @@ function(id, max = 60, url = "https://www.goodreads.com/review/list/", cookie = 
         if(!is.na(max) && nrow(ans) >= max)
             break
 
+        if(length(nxt <- getNodeSet(doc, "//a[@class = 'next_page' and contains(., 'next')]")) == 0)
+            break
+
         page = page + 1L
     }
 
     names(ans) = trim(names(ans))
+
+    ans[] = mapply(cleanVar, ans, names(ans), SIMPLIFY = FALSE)
     
     invisible(ans)
+}
+
+cleanVar =
+function(vals, field)
+{
+   gsub(sprintf("^%s[[:space:]]+", field), "", vals)
 }
 
 getLoginHandle =
