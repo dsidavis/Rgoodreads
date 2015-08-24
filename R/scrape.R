@@ -129,7 +129,7 @@ function(cookie = getLoginCookie(), ..., curl = getCurlHandle())
    curl
 }
 
-getLoginCookieFirefox =
+getLoginCookie = getLoginCookieFirefox =
 function(cookiesDB = getFirefoxCookiesFile())
 {
    con = dbConnect(SQLite(), cookiesDB)

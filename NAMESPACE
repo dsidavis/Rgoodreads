@@ -22,3 +22,6 @@ export(getSearchResults, getReviews)
 export(rbindDFs)
 
 export(getUserRatings)
+
+export(getLoginCookie)
+
