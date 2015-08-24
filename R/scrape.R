@@ -154,6 +154,8 @@ function()
        stop("cannot determine Firefox profile")
    if(length(ff) > 1)
       ff = ff[ which.max(file.info(ff)$mtime) ]
+   else
+      ff
 }
 
 getChromeCookiesFile =
