@@ -6,4 +6,5 @@ Description:  Functions that provide mechanisms to extract data from  the GoodRe
 Author: Duncan Temple Lang
 Maintainer: Duncan Temple Lang <duncan@r-project.org>
 License: BSD
-Imports: RCurl, XML, RJSONIO
+Imports: RCurl, XML, RJSONIO, RSQLite
+

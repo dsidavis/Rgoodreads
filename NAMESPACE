@@ -1,6 +1,7 @@
 import(RCurl)
 import(XML)
 import(RJSONIO)
+import(RSQLite)
 
 export(
     findGroup,
